@@ -2,21 +2,24 @@ import numpy as np
 import tensorflow as tf
 import gym
 from typing import List, Tuple
-from ..genotype.fixed_length import GenotypeFixedLength
+from ..genotype.individual import Individual
 
 
 class CartPole:
 
-    def __init__(self, seed: int, num_hidden_units: int = 8, env_name="CartPole-v0"):
+    def __init__(self,
+                 env_name: str = "CartPole-v0",
+                 no_attempts: int = 15,
+                 max_steps_per_episode: int = 1000
+                 ):
 
         env = gym.make(env_name)
 
-        self.num_hidden_units = num_hidden_units
         self.num_actions = env.action_space.n
         self.num_obs_space = env.observation_space.shape[0]
         self.env = env
-        self.no_attempts = 30
-        self.max_steps_per_episode = 1000
+        self.no_attempts = no_attempts
+        self.max_steps_per_episode = max_steps_per_episode
 
     def env_step(self, action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Returns state, reward and done flag given an action."""
@@ -66,7 +69,7 @@ class CartPole:
 
         return rewards
 
-    def run_evaluation(self, individual: GenotypeFixedLength) -> GenotypeFixedLength:
+    def run_evaluation(self, individual: Individual) -> Individual:
 
         model = individual.to_phenotype()
 
@@ -78,7 +81,7 @@ class CartPole:
             reward += sum_reward
 
         result = reward / float(self.no_attempts)
-        print(result)
+        print(f'At level={individual.level}: ', result)
 
         del model
         individual.last_fitness = result

@@ -2,7 +2,7 @@ import numpy as np
 import time
 import tensorflow as tf
 import concurrent
-from ..genotype.fixed_length import GenotypeFixedLength
+from ..genotype.individual import Individual
 from ..evolution.sea import SEA
 from ..environment.cart_pole import CartPole
 
@@ -11,7 +11,7 @@ tf.random.set_seed(42)
 
 
 def xd(individuals):
-    env = CartPole(42)
+    env = CartPole()
     return env.run_evaluation(individuals)
 
 
@@ -20,8 +20,8 @@ if __name__ == '__main__':
     LENGTH = 58
 
     # initial population
-    pop = [GenotypeFixedLength(LENGTH, [(4,8), (8,), (8,2), (2,)]) for i in range(100)]
-    alg = SEA(0.8, 0.1)
+    pop = [Individual(LENGTH, [(4, 8), (8,), (8, 2), (2,)]) for i in range(100)]
+    alg = SEA(0.8, 0.05)
 
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=10)
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
         sorr = sorted(pop, key=lambda ind: -ind.last_fitness)
 
-        promoted = sorr[:10]
+        promoted = sorr[:20]
         pop = [alg.mutate(promoted[i]) for i in np.random.randint(low=0, high=10, size=99)]
         pop += promoted[:1]
 

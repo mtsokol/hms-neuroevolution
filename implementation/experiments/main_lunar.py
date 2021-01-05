@@ -2,7 +2,7 @@ import numpy as np
 import time
 import tensorflow as tf
 import concurrent
-from ..genotype.fixed_length import GenotypeFixedLength
+from ..genotype.individual import Individual
 from ..evolution.sea import SEA
 from ..environment.cart_pole import CartPole
 
@@ -11,7 +11,7 @@ tf.random.set_seed(42)
 
 
 def xd(individuals):
-    env = CartPole(42, env_name="LunarLander-v2")
+    env = CartPole(env_name="LunarLander-v2")
     return env.run_evaluation(individuals)
 
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     LENGTH = 18180
 
     # initial population
-    pop = [GenotypeFixedLength(LENGTH, [(8,128), (128,), (128,128), (128,), (128,4), (4,)]) for i in range(100)]
+    pop = [Individual(LENGTH, [(8, 128), (128,), (128, 128), (128,), (128, 4), (4,)]) for i in range(100)]
     alg = SEA(0.8, 0.1)
 
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=10)

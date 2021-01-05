@@ -1,6 +1,7 @@
 import numpy as np
 
-class GenotypeVarLength:
+
+class IndividualVarLength:
 
     def __init__(self):
         pass
@@ -14,4 +15,3 @@ class GenotypeVarLength:
         seeds = parent_seeds + ((idx, mutation_power), )
         theta = self.compute_mutation(noise, parent_theta, idx, mutation_power)
         return theta, seeds
-
