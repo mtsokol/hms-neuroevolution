@@ -4,15 +4,15 @@ from ..evolution.sea import SEA
 from ..environment.gym_env import GymEnv
 import concurrent
 
-LENGTH = 58
+LENGTH = 18180
 
 
 def create_individual(level: int):
-    return Individual(LENGTH, [(4, 8), (8,), (8, 2), (2,)], level)
+    return Individual(LENGTH, [(8, 128), (128,), (128, 128), (128,), (128, 4), (4,)], level)
 
 
 def evaluate_individual(i):
-    env = GymEnv(env_name="CartPole-v0")
+    env = GymEnv(env_name='LunarLander-v2')
     return env.run_evaluation(i)
 
 

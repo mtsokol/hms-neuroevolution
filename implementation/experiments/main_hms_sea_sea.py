@@ -1,8 +1,13 @@
 from ..evolution.hms.hms import HMS
 from ..genotype.individual import Individual
 from ..evolution.sea import SEA
-from ..environment.cart_pole import CartPole
+from ..environment.gym_env import GymEnv
 import concurrent
+import numpy as np
+import tensorflow as tf
+
+np.random.seed(42)
+tf.random.set_seed(42)
 
 LENGTH = 58
 
@@ -12,7 +17,7 @@ def create_individual(level: int):
 
 
 def evaluate_individual(i):
-    env = CartPole()
+    env = GymEnv(env_name="CartPole-v0")
     return env.run_evaluation(i)
 
 
@@ -24,3 +29,6 @@ if __name__ == '__main__':
               [100, 50], [None, None], [5.1, 5.1], 200., 3, executor=executor)
 
     hms.run()
+
+    print(hms.running_demes[0].elite.genotype_array)
+    print(hms.running_demes[1].elite.genotype_array)

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
@@ -13,7 +11,7 @@ class Individual(object):
         self.length: int = length
         self.net_shapes: List[Tuple] = net_shapes
         self.level: int = level
-        self.genotype_array: np.ndarray = np.random.randn(length) * 0.8
+        self.genotype_array: np.ndarray = np.random.randn(length)
         self.last_fitness: float = -math.inf
 
     def to_phenotype(self) -> tf.keras.Model:
@@ -39,7 +37,7 @@ class Individual(object):
 
         return model
 
-    def distance_to(self, other_genotype: Individual):
+    def distance_to(self, other_genotype: 'Individual'):
         return np.sum(np.abs(self.genotype_array - other_genotype.genotype_array))
 
     def increment_level(self):

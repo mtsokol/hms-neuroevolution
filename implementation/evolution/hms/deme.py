@@ -22,13 +22,15 @@ class Deme:
     def collect_evaluations(self, epoch: int, promoted_num: int):
         pop = list(map(lambda d: d.result(), self.futures))
         pop_sorted = sorted(pop, key=lambda ind: -ind.last_fitness)
+        std_in_epoch = np.std(list(map(lambda ind: ind.last_fitness, pop)))
         promoted = pop_sorted[:promoted_num]
-        pop = [self.alg.mutate(promoted[i]) for i in np.random.randint(low=0, high=promoted_num, size=len(self.population)-1)]
+        pop = [self.alg.mutate(promoted[i]) for i in
+               np.random.randint(low=0, high=promoted_num, size=len(self.population) - 1)]
         pop += promoted[:1]
         self.population = pop
         self.futures = None
         self.elite = promoted[0]
 
-        self.history[epoch] = self.elite
+        self.history[epoch] = (self.elite, std_in_epoch)
 
         print(f"best fitness for deme {hash(self)} in epoch {epoch} is {self.elite.last_fitness}")

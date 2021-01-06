@@ -5,10 +5,10 @@ from typing import List, Tuple
 from ..genotype.individual import Individual
 
 
-class CartPole:
+class GymEnv:
 
     def __init__(self,
-                 env_name: str = "CartPole-v0",
+                 env_name: str,
                  no_attempts: int = 15,
                  max_steps_per_episode: int = 1000
                  ):

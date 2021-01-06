@@ -1,6 +1,7 @@
 import numpy as np
 import concurrent
 from .deme import Deme
+from typing import List
 
 
 class HMS:
@@ -10,7 +11,7 @@ class HMS:
                  create_individual,
                  evaluate_individual,
                  alg_list: list,
-                 pop_sizes: list,
+                 pop_sizes: List[int],
                  lsc_list: list,
                  spr_list: list,
                  gsc_val: int,
@@ -18,19 +19,18 @@ class HMS:
                  executor):
         assert levels == len(alg_list) == len(pop_sizes) == len(lsc_list) == len(spr_list), 'dims don\'t match'
 
-        self.levels = levels
+        self.levels: int = levels
         self.create_individual = create_individual
         self.evaluate_individual = evaluate_individual
-        self.pop_sizes = pop_sizes
+        self.pop_sizes: List[int] = pop_sizes
         self.alg_list = alg_list
         self.spr_list = spr_list
-        self.running_demes = []
+        self.running_demes: List[Deme] = []
         self.gsc_val = gsc_val
         self.epoch = 1
         self.metaepoch = 1
         self.metaepoch_length = metaepoch_length
         self.executor = executor
-        self.best_in_epoch = None
 
     def run(self):
 
@@ -72,20 +72,21 @@ class HMS:
 
     def can_sprout(self, deme_to_sprout) -> bool:
 
-        if deme_to_sprout.level == self.levels-1:
+        if deme_to_sprout.level == self.levels - 1:
             return False
 
         demes = list(self.running_demes)
         demes.remove(deme_to_sprout)
 
         for deme in demes:
-            if deme.level == deme_to_sprout.level+1 and deme.elite.distance_to(deme_to_sprout.elite) < self.spr_list[deme.level]:
+            if deme.level == deme_to_sprout.level + 1 and \
+                    deme.elite.distance_to(deme_to_sprout.elite) < self.spr_list[deme.level]:
                 return False
 
         return True
 
-    def perform_sprout(self, deme):
-        new_deme = self.create_deme(deme.level+1, [deme.elite])
+    def perform_sprout(self, deme) -> None:
+        new_deme = self.create_deme(deme.level + 1, [deme.elite])
         self.running_demes.append(new_deme)
 
     def gsc_satisfied(self) -> bool:
