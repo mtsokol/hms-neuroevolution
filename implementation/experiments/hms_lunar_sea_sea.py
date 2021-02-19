@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=10)
 
-    hms = HMS(1, create_individual, evaluate_individual, [SEA(0.8, 0.5)],
-              [150], [None], [5.1], 200., 10, executor=executor)
+    hms = HMS(2, create_individual, evaluate_individual, [SEA(0.8, 0.5), SEA(0.8, 0.2)],
+              [200, 50], [None, None], [5.1, 5.1], 200., 3, executor=executor)
 
     hms.run()

@@ -6,9 +6,6 @@ import concurrent
 import numpy as np
 import tensorflow as tf
 
-np.random.seed(42)
-tf.random.set_seed(42)
-
 LENGTH = 58
 
 
@@ -25,7 +22,7 @@ if __name__ == '__main__':
 
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=10)
 
-    hms = HMS(2, create_individual, evaluate_individual, [SEA(0.8, 0.5), SEA(0.8, 0.1)],
+    hms = HMS(2, create_individual, evaluate_individual, [SEA(0.8, 0.5), SEA(0.8, 0.2)],
               [100, 50], [None, None], [5.1, 5.1], 200., 3, executor=executor)
 
     hms.run()
