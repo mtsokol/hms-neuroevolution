@@ -2,13 +2,15 @@ import numpy as np
 import tensorflow as tf
 import gym
 from typing import List, Tuple
-from ..genotype.individual import Individual
+from ..genotype.base_individual import BaseIndividual
+from numpy.random import SeedSequence
 
 
 class GymEnv:
 
     def __init__(self,
                  env_name: str,
+                 seed: SeedSequence,
                  no_attempts: int = 15,
                  max_steps_per_episode: int = 1000
                  ):
@@ -18,8 +20,11 @@ class GymEnv:
         self.num_actions = env.action_space.n
         self.num_obs_space = env.observation_space.shape[0]
         self.env = env
+        self.rng = np.random.default_rng(seed)
         self.no_attempts = no_attempts
         self.max_steps_per_episode = max_steps_per_episode
+
+        tf.random.set_seed(int(10000 * self.rng.random() + 1000))
 
     def env_step(self, action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Returns state, reward and done flag given an action."""
@@ -69,21 +74,20 @@ class GymEnv:
 
         return rewards
 
-    def run_evaluation(self, individual: Individual) -> Individual:
+    def run_evaluation(self, individual: BaseIndividual, deme_id: int, ind_id: int) -> Tuple[int, int, float]:
 
         model = individual.to_phenotype()
 
         reward = 0.
         for i in range(self.no_attempts):
+            self.env.seed(int(10000 * self.rng.random() + 1000))
             initial_state = tf.constant(self.env.reset(), dtype=tf.float32)
             rewards = self.run_episode(initial_state, model, self.max_steps_per_episode)
             sum_reward = np.sum(rewards)
             reward += sum_reward
 
         result = reward / float(self.no_attempts)
-        print(f'At level={individual.level}: ', result)
 
         del model
-        individual.last_fitness = result
 
-        return individual
+        return deme_id, ind_id, result

@@ -1,3 +1,5 @@
-tensorflow~=2.4.0
+tensorflow~=2.4.1
 gym~=0.18.0
-matplotlib~=3.3.3
+atari-py~=0.2.6
+matplotlib~=3.3.4
+joblib~=1.0.1

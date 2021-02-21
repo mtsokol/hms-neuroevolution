@@ -1,36 +1,50 @@
-import numpy as np
 from typing import Optional
-from ...genotype.individual import Individual
+from ...genotype.base_individual import BaseIndividual
+from .config import LevelConfig
+from collections import OrderedDict
+from uuid import uuid1, UUID
+import numpy as np
+from copy import deepcopy
 
 
 class Deme:
 
-    def __init__(self, level: int, population: list, executor, evaluate_individual, alg):
+    def __init__(self, level: int, initial_population: list, level_config: LevelConfig, rng):
         self.level = level
-        self.population = population
-        self.elite: Optional[Individual] = None
-        self.executor = executor
-        self.evaluate_individual = evaluate_individual
-        self.alg = alg
-        self.futures = None
-        self.history = dict()
+        self.population: OrderedDict[UUID, BaseIndividual] = OrderedDict()
+        self.alive = True
+        self.elite: Optional[BaseIndividual] = None
+        self.level_config = level_config
+        self.rng = rng
 
-    def run_evaluations(self):
-        self.futures = [self.executor.submit(self.evaluate_individual, individual) for individual in self.population]
-        return self.futures
+        for ind in initial_population:
+            self.population[uuid1()] = ind
 
-    def collect_evaluations(self, epoch: int, promoted_num: int):
-        pop = list(map(lambda d: d.result(), self.futures))
-        pop_sorted = sorted(pop, key=lambda ind: -ind.last_fitness)
-        std_in_epoch = np.std(list(map(lambda ind: ind.last_fitness, pop)))
-        promoted = pop_sorted[:promoted_num]
-        pop = [self.alg.mutate(promoted[i]) for i in
-               np.random.randint(low=0, high=promoted_num, size=len(self.population) - 1)]
-        pop += promoted[:1]
-        self.population = pop
-        self.futures = None
-        self.elite = promoted[0]
+    def set_fitness(self, ind_id: UUID, fitness: np.float):
+        self.population[ind_id].fitness = fitness
 
-        self.history[epoch] = (self.elite, std_in_epoch)
+    def get_jobs(self):
+        if self.alive:
+            return self.population.items()
+        else:
+            return []
 
-        print(f"best fitness for deme {hash(self)} in epoch {epoch} is {self.elite.last_fitness}")
+    def run_step(self):
+        individuals = list(self.population.values())
+        individuals.sort(key=lambda ind: ind.fitness, reverse=True)
+        self.elite = individuals[0]
+
+        new_population = OrderedDict()
+
+        for _ in range(self.level_config.pop_size-1):
+            ind = self.rng.choice(individuals[:self.level_config.promoted_num])
+            ind = deepcopy(ind)
+            ind.genotype.mutate()
+            new_population[uuid1()] = ind
+
+        new_population[uuid1()] = self.elite
+
+        del self.population
+        self.population = new_population
+
+        print(f"best fitness for deme {hash(self)} is {self.elite.fitness}")
