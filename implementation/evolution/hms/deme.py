@@ -16,6 +16,8 @@ class Deme:
         self.elite: Optional[BaseIndividual] = None
         self.level_config = level_config
         self.rng = rng
+        self.history = []
+        self.steps_run = 0
 
         for ind in initial_population:
             self.population[uuid1()] = ind
@@ -30,6 +32,14 @@ class Deme:
             return []
 
     def run_step(self):
+        if self.alive:
+
+            self.__run_step()
+
+            if self.level_config.check_lsc(self.history, self.steps_run):
+                self.alive = False
+
+    def __run_step(self):
         individuals = list(self.population.values())
         individuals.sort(key=lambda ind: ind.fitness, reverse=True)
         self.elite = individuals[0]
@@ -48,3 +58,6 @@ class Deme:
         self.population = new_population
 
         print(f"best fitness for deme {hash(self)} is {self.elite.fitness}")
+
+        self.history.append(self.elite.fitness)
+        self.steps_run += 1

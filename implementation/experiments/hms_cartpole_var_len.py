@@ -4,7 +4,7 @@ from ..environment.gym_env import GymEnv
 from .base_experiment import BaseExperiment
 from ..genotype.base_individual import BaseIndividual
 from ..genotype.individual_nn import IndividualNN
-from ..genotype.genotype_fixed_len import GenotypeFixedLen
+from ..genotype.genotype_var_len import shared_noise_table
 from typing import Tuple
 from numpy.random import Generator, SeedSequence
 import numpy as np
@@ -15,15 +15,16 @@ LENGTH = 58
 
 def run_experiment():
 
-    seed = 98765
+    seed = 9876
     rng = np.random.default_rng(seed)
 
-    experiment = ExperimentCartPole()
+    shared_noise = shared_noise_table()
 
-    config_list = [LevelConfig(0.8, 0.5, 100, 30, None, 0.5),
-                   LevelConfig(0.8, 0.2, 50, 20, ('obj_no_change', 3), None)]
+    experiment = ExperimentCartPole(encoding='var')
 
-    hms = HMS(experiment, 2, config_list, 5, ('epochs', 5), n_jobs=10, rng=rng)
+    config_list = [LevelConfig(0.8, 0.5, 150, 30, None, None)]
+
+    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', 6), n_jobs=10, rng=rng, noise=shared_noise)
 
     hms.run()
 

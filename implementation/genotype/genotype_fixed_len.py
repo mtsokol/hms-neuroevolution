@@ -5,7 +5,7 @@ import numpy as np
 
 class GenotypeFixedLen(BaseGenotype):
 
-    def __init__(self, mut_prob: float, mut_std: float, gen_len: int, rng: Generator):
+    def __init__(self, mut_prob: float, mut_std: float, gen_len: int, rng: Generator, noise):
         self.mut_prob = mut_prob
         self.mut_std = mut_std
         self.rng = rng

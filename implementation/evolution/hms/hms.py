@@ -18,8 +18,9 @@ class HMS:
                  config_list: List[LevelConfig],
                  metaepoch_length: int,
                  gsc: Tuple[str, int],
-                 n_jobs,
-                 rng):
+                 n_jobs: int,
+                 rng,
+                 noise=None):
         assert levels == len(config_list), 'dims don\'t match'
 
         self.experiment = experiment
@@ -32,8 +33,9 @@ class HMS:
         self.metaepoch_length = metaepoch_length
         self.n_jobs = n_jobs
         self.rng = rng
-        self.executor = Parallel(n_jobs=self.n_jobs)
+        self.executor = Parallel(n_jobs=self.n_jobs, backend='loky')
         self.seed_seq = SeedSequence(int(10000 * rng.random() + 1000))
+        self.noise = noise
 
     def run(self):
 
@@ -86,7 +88,7 @@ class HMS:
         config = self.config_list[level]
 
         if initial_individuals is None:
-            pop = [self.experiment.create_individual(config, self.rng) for _ in range(config.pop_size)]
+            pop = [self.experiment.create_individual(config, self.rng, self.noise) for _ in range(config.pop_size)]
         else:
             pop = []
             for _ in range(config.pop_size):
@@ -101,7 +103,7 @@ class HMS:
 
         for deme_id, deme in self.demes.items():
 
-            if deme.level == self.levels + 1:
+            if deme.level == self.levels + 1 or self.config_list[deme.level].spr_cond is None:
                 continue
 
             min_dist = self.config_list[deme.level].spr_cond
@@ -121,10 +123,17 @@ class HMS:
                 self.demes[uuid1()] = new_deme
 
     def gsc_satisfied(self) -> bool:
-        for _, deme in self.demes.items():
-            if deme.alive:
-                return False
-        return True
+        gsc_type, value = self.gsc
+
+        if gsc_type == 'deme_alive':
+            for _, deme in self.demes.items():
+                if deme.alive:
+                    return False
+            return True
+        elif gsc_type == 'epochs':
+            return self.epoch >= value
+        else:
+            raise Exception('Invalid GSC')
 
     def __log_metrics(self):
 
