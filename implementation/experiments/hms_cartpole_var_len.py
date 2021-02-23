@@ -15,7 +15,7 @@ LENGTH = 58
 
 def run_experiment():
 
-    seed = 9876
+    seed = 98765
     rng = np.random.default_rng(seed)
 
     shared_noise = shared_noise_table()
@@ -24,7 +24,7 @@ def run_experiment():
 
     config_list = [LevelConfig(0.8, 0.5, 150, 30, None, None)]
 
-    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', 6), n_jobs=10, rng=rng, noise=shared_noise)
+    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', 8), n_jobs=10, rng=rng, noise=shared_noise)
 
     hms.run()
 

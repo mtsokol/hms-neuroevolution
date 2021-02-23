@@ -1,9 +1,12 @@
 import numpy as np
+import os
 import tensorflow as tf
 import gym
 from typing import List, Tuple
 from ..genotype.base_individual import BaseIndividual
 from numpy.random import SeedSequence
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 
 class GymEnv:

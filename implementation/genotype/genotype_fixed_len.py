@@ -1,6 +1,7 @@
 from .base_genotype import BaseGenotype
 from numpy.random import Generator
 import numpy as np
+from copy import deepcopy
 
 
 class GenotypeFixedLen(BaseGenotype):
@@ -21,3 +22,8 @@ class GenotypeFixedLen(BaseGenotype):
 
     def get_gene_array(self) -> np.ndarray:
         return self.genotype_array
+
+    def __deepcopy__(self, memodict={}):
+        copied_gen = GenotypeFixedLen(self.mut_prob, self.mut_std, self.gen_len, self.rng, noise=None)
+        copied_gen.genotype_array = deepcopy(self.genotype_array)
+        return copied_gen

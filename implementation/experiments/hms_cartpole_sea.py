@@ -34,7 +34,7 @@ def run_experiment():
 
     config_list = [LevelConfig(0.8, 0.5, 150, 30, None, None)]
 
-    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', 5), n_jobs=10, rng=rng)
+    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', 8), n_jobs=10, rng=rng)
 
     hms.run()
 

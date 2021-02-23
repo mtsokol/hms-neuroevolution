@@ -45,7 +45,6 @@ class GenotypeVarLen(BaseGenotype):
         return built_gene_array
 
     def __deepcopy__(self, memodict={}):
-        copied_gen = GenotypeVarLen(self.mut_prob, self.mut_std, self.gen_len,
-                                    deepcopy(self.rng), self.noise)
+        copied_gen = GenotypeVarLen(self.mut_prob, self.mut_std, self.gen_len, self.rng, self.noise)
         copied_gen.seeds = deepcopy(self.seeds)
         return copied_gen
