@@ -4,7 +4,7 @@ from ..environment.gym_env import GymEnv
 from .base_experiment import BaseExperiment
 from ..genotype.base_individual import BaseIndividual
 from ..genotype.individual_nn import IndividualNN
-from typing import Tuple, Optional
+from typing import Tuple
 from numpy.random import Generator, SeedSequence
 import numpy as np
 
