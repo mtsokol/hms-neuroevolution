@@ -16,8 +16,6 @@ class IndividualConv(BaseIndividual):
         flat_weights = tf.split(tf.constant(self.genotype.get_gene_array()), flat_shapes)
         weights = list(map(lambda tup: tf.reshape(*tup), zip(flat_weights, self.model_shape)))
 
-        model = tf.keras.Sequential()
-
         model = models.Sequential()
         model.add(layers.Conv2D(32, (8, 8), strides=(4, 4), activation='relu', input_shape=(84, 84, 1)))
         model.add(layers.Conv2D(64, (4, 4), strides=(2, 2), activation='relu'))

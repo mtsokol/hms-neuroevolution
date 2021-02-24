@@ -40,7 +40,7 @@ class GenotypeVarLen(BaseGenotype):
         built_gene_array = np.copy(self.noise[self.seeds[0]:self.seeds[0]+self.gen_len])
 
         for seed in self.seeds[1:]:
-            built_gene_array += self.mut_std * np.copy(self.noise[seed:seed+self.gen_len])
+            built_gene_array += self.mut_std * self.noise[seed:seed+self.gen_len]
 
         return built_gene_array
 
