@@ -4,10 +4,12 @@ from ..environment.atari_env import AtariEnv
 from .base_experiment import BaseExperiment
 from ..genotype.base_individual import BaseIndividual
 from ..genotype.individual_conv import IndividualConv
+from ..visualization.utils import save_experiment_description
 from typing import Tuple
 from numpy.random import Generator, SeedSequence
 import numpy as np
 from ..genotype.genotype_var_len import shared_noise_table
+from . import run_arg_parser
 
 LENGTH = 1687218
 
@@ -28,8 +30,8 @@ class ExperimentAtari(BaseExperiment):
         return env.run_evaluation(individual, deme_id, individual_id)
 
 
-def run_experiment():
-    seed = 98765
+def run_experiment(seed, n_jobs, epochs):
+
     rng = np.random.default_rng(seed)
 
     experiment = ExperimentAtari()
@@ -38,10 +40,13 @@ def run_experiment():
 
     config_list = [LevelConfig(0.9, 0.005, 1000, 25, None, None)]
 
-    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', 150), n_jobs=25, rng=rng, noise=shared_noise)
+    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', epochs), n_jobs=n_jobs, rng=rng, noise=shared_noise)
+
+    save_experiment_description(hms, type(experiment).__name__, seed)
 
     hms.run()
 
 
 if __name__ == '__main__':
-    run_experiment()
+
+    run_experiment(*run_arg_parser())

@@ -34,3 +34,12 @@ class LevelConfig:
                 return False
         else:
             raise Exception('Invalid LSC')
+
+    def __str__(self):
+        return f'''Level config:
+        \tmut_prob: {self.mut_prob} 
+        \tmut_std: {self.mut_std} 
+        \tpop_size: {self.pop_size}
+        \tpromoted_num: {self.promoted_num}
+        \tlsc: {self.lsc}
+        \tspr_cond: {self.spr_cond}\n'''

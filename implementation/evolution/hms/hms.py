@@ -1,13 +1,13 @@
 from .deme import Deme
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 from ...experiments.base_experiment import BaseExperiment
 from ...genotype.base_individual import BaseIndividual
 from collections import OrderedDict
 from joblib import Parallel, delayed
-from uuid import uuid1
+from uuid import uuid1, UUID
 from copy import deepcopy
 from numpy.random import SeedSequence
-from ...visualization.plotting import *
+from ...visualization import utils, plotting
 from .config import LevelConfig
 
 
@@ -155,11 +155,11 @@ class HMS:
         for deme_id, deme in self.demes.items():
             if deme.alive:
                 scores = list(map(lambda ind: ind.fitness, deme.population.values()))
-                plot_histogram_with_elite(scores, deme.elite.fitness, self.epoch, deme_id)
+                plotting.plot_histogram_with_elite(scores, deme.elite.fitness, self.epoch, deme_id)
 
     def __log_summary_metrics(self):
 
-        plot_median_with_intervals(self.elite_score_history, self.rng)
+        plotting.plot_median_with_intervals(self.elite_score_history, self.rng)
 
     def __evaluate_hms_elite(self):
 
@@ -170,9 +170,6 @@ class HMS:
                 if hms_elite is None or hms_elite.fitness < deme.elite.fitness:
                     hms_elite = deme.elite
 
-        # save model
-        # hms_elite_model = hms_elite.to_phenotype() ...
-
         jobs_to_evaluate = []
         seeds = self.seed_seq.spawn(5)
 
@@ -182,3 +179,19 @@ class HMS:
         results = self.executor(delayed(self.experiment.evaluate_individual)(*job) for job in jobs_to_evaluate)
         results = list(map(lambda x: x[2], results))
         self.elite_score_history.append(results)
+
+        # save elite model
+        utils.save_model(hms_elite, self.epoch)
+
+    def __str__(self):
+
+        specs = f'''HMS config:
+        \tlevels: {self.levels}
+        \tmetaepoch_length: {self.metaepoch_length}
+        \tgsc: {self.gsc}
+        \tn_jobs: {self.n_jobs}\n'''
+
+        for config in self.config_list:
+            specs += str(config)
+
+        return specs

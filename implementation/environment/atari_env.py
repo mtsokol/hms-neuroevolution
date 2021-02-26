@@ -1,7 +1,7 @@
 import tensorflow as tf
 from numpy.random import SeedSequence
 from .base_env import BaseEnv
-from ..environment import *
+from . import grayscale_palette
 
 
 class AtariEnv(BaseEnv):
