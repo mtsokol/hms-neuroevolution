@@ -1,5 +1,6 @@
 from ..evolution.hms.hms import HMS
 from ..evolution.hms.config import LevelConfig
+from ..genotype.genotype_var_len import shared_noise_table
 from ..visualization.utils import save_experiment_description
 from numpy.random import Generator
 import numpy as np
@@ -11,12 +12,13 @@ def run_experiment(seed, n_jobs, epochs):
 
     rng = np.random.default_rng(seed)
 
-    experiment = ExperimentCartPole()
+    shared_noise = shared_noise_table()
 
-    config_list = [LevelConfig(0.8, 0.5, 110, 30, None, 0.5),
-                   LevelConfig(0.8, 0.2, 40, 20, ('obj_no_change', 3), None)]
+    experiment = ExperimentCartPole(encoding='var')
 
-    hms = HMS(experiment, 2, config_list, 2, ('epochs', epochs), n_jobs=n_jobs, rng=rng)
+    config_list = [LevelConfig(0.8, 0.5, 150, 30, None, None)]
+
+    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', epochs), n_jobs=n_jobs, rng=rng, noise=shared_noise)
 
     save_experiment_description(hms, type(experiment).__name__, seed)
 
