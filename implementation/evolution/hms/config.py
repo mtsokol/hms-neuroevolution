@@ -24,7 +24,7 @@ class LevelConfig:
         if lsc_type == 'epoch':
             return steps_run >= value
         elif lsc_type == 'obj_no_change':
-            if len(history) < value + 1:
+            if len(history) > value:
                 last_fitness = history[-1]
                 for past_fitness in history[:-1][-value:]:
                     if last_fitness > past_fitness:

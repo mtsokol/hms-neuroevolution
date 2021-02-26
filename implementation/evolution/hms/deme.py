@@ -25,6 +25,10 @@ class Deme:
     def set_fitness(self, ind_id: UUID, fitness: np.float):
         self.population[ind_id].fitness = fitness
 
+    def update_elite(self):
+        if self.alive:
+            self.elite = max(self.population.values(), key=lambda ind: ind.fitness)
+
     def get_jobs(self):
         if self.alive:
             return self.population.items()
@@ -42,7 +46,6 @@ class Deme:
     def __run_step(self):
         individuals = list(self.population.values())
         individuals.sort(key=lambda ind: ind.fitness, reverse=True)
-        self.elite = individuals[0]
 
         new_population = OrderedDict()
 

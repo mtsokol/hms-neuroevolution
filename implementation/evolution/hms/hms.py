@@ -1,9 +1,10 @@
 from .deme import Deme
-from typing import Tuple
+from typing import Tuple, Optional
 from ...experiments.base_experiment import BaseExperiment
+from ...genotype.base_individual import BaseIndividual
 from collections import OrderedDict
 from joblib import Parallel, delayed
-from uuid import uuid1, UUID
+from uuid import uuid1
 from copy import deepcopy
 from numpy.random import SeedSequence
 from ...visualization.plotting import *
@@ -36,6 +37,7 @@ class HMS:
         self.executor = Parallel(n_jobs=self.n_jobs, backend='loky')
         self.seed_seq = SeedSequence(int(10000 * rng.random() + 1000))
         self.noise = noise
+        self.elite_score_history = []
 
     def run(self):
 
@@ -51,11 +53,15 @@ class HMS:
 
             self.__evaluate_individuals()
 
-            self.__log_metrics()
+            self.__evaluate_hms_elite()
+
+            self.__log_epoch_metrics()
 
             self.__run_step()
 
             self.epoch += 1
+
+        self.__log_summary_metrics()
 
     def __initialize_root_deme(self):
 
@@ -77,6 +83,9 @@ class HMS:
 
         for deme_id, ind_id, fitness in results:
             self.demes[deme_id].set_fitness(ind_id, fitness)
+
+        for deme in self.demes.values():
+            deme.update_elite()
 
     def __run_step(self):
 
@@ -101,12 +110,14 @@ class HMS:
 
     def __perform_sprouting(self) -> None:
 
+        new_demes = []
+
         for deme_id, deme in self.demes.items():
 
-            if deme.level == self.levels + 1 or self.config_list[deme.level].spr_cond is None:
-                continue
-
             min_dist = self.config_list[deme.level].spr_cond
+
+            if deme.level == self.levels - 1 or min_dist is None:
+                continue
 
             elites = []
             for other_deme_id, other_deme in self.demes.items():
@@ -120,9 +131,13 @@ class HMS:
 
             if can_sprout:
                 new_deme = self.__create_deme(deme.level + 1, [deme.elite])
-                self.demes[uuid1()] = new_deme
+                new_demes.append(new_deme)
+
+        for new_deme in new_demes:
+            self.demes[uuid1()] = new_deme
 
     def gsc_satisfied(self) -> bool:
+
         gsc_type, value = self.gsc
 
         if gsc_type == 'deme_alive':
@@ -135,11 +150,35 @@ class HMS:
         else:
             raise Exception('Invalid GSC')
 
-    def __log_metrics(self):
+    def __log_epoch_metrics(self):  # TODO proper metrics
 
-        for _, deme in self.demes.items():
+        for deme_id, deme in self.demes.items():
             if deme.alive:
-                elite_score = max(deme.population.values(), key=lambda ind: ind.fitness).fitness
                 scores = list(map(lambda ind: ind.fitness, deme.population.values()))
+                plot_histogram_with_elite(scores, deme.elite.fitness, self.epoch, deme_id)
 
-                plot_histogram_with_elite(scores, elite_score, self.epoch)
+    def __log_summary_metrics(self):
+
+        plot_median_with_intervals(self.elite_score_history, self.rng)
+
+    def __evaluate_hms_elite(self):
+
+        hms_elite: Optional[BaseIndividual] = None
+
+        for deme in self.demes.values():
+            if deme.alive:
+                if hms_elite is None or hms_elite.fitness < deme.elite.fitness:
+                    hms_elite = deme.elite
+
+        # save model
+        # hms_elite_model = hms_elite.to_phenotype() ...
+
+        jobs_to_evaluate = []
+        seeds = self.seed_seq.spawn(5)
+
+        for seed in seeds:
+            jobs_to_evaluate.append((None, None, hms_elite, seed))
+
+        results = self.executor(delayed(self.experiment.evaluate_individual)(*job) for job in jobs_to_evaluate)
+        results = list(map(lambda x: x[2], results))
+        self.elite_score_history.append(results)
