@@ -4,7 +4,7 @@ from . import DIR
 def save_model(individual, epoch):
 
     model = individual.to_phenotype()
-    model.save_weights(f'{DIR}/checkpoints/epoch-{epoch}/model')
+    model.save(f'{DIR}/checkpoints/epoch-{epoch}/model')
     del model
 
 
