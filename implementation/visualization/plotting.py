@@ -15,7 +15,7 @@ def plot_histogram_with_elite(scores: List[np.float], elite_score: np.float, epo
     fig.savefig(f'{DIR}/plot_{epoch}_deme_{deme_id}.png')
     plt.close(fig)
 
-    # TODO use np.save()
+    np.save(f'{DIR}/scores_{epoch}_deme_{deme_id}.npy', scores)
 
 
 def plot_median_with_intervals(elite_score_history, rng: Generator):
@@ -48,4 +48,6 @@ def plot_median_with_intervals(elite_score_history, rng: Generator):
     fig.savefig(f'{DIR}/plot_median_intervals.png')
     plt.close(fig)
 
-    #np.save('exp-1.npy', meds)  # TODO
+    np.save(f'{DIR}/array_med.npy', meds)
+    np.save(f'{DIR}/array_high.npy', highs)
+    np.save(f'{DIR}/array_low.npy', lows)

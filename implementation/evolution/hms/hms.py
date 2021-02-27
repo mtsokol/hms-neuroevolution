@@ -9,6 +9,8 @@ from copy import deepcopy
 from numpy.random import SeedSequence
 from ...visualization import utils, plotting
 from .config import LevelConfig
+import sys
+import signal
 
 
 class HMS:
@@ -38,6 +40,13 @@ class HMS:
         self.seed_seq = SeedSequence(int(10000 * rng.random() + 1000))
         self.noise = noise
         self.elite_score_history = []
+
+        def handler(signum, _):
+            print('Stopping experiment early. Saving scores...')
+            self.__log_summary_metrics()
+            sys.exit()
+
+        signal.signal(signal.SIGINT, handler)
 
     def run(self):
 
@@ -159,7 +168,8 @@ class HMS:
 
     def __log_summary_metrics(self):
 
-        plotting.plot_median_with_intervals(self.elite_score_history, self.rng)
+        if len(self.elite_score_history) > 0:
+            plotting.plot_median_with_intervals(self.elite_score_history, self.rng)
 
     def __evaluate_hms_elite(self):
 
