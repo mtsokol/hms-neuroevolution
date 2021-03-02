@@ -125,12 +125,12 @@ class HMS:
 
             min_dist = self.config_list[deme.level].spr_cond
 
-            if deme.level == self.levels - 1 or min_dist is None:
+            if deme.level == self.levels - 1 or min_dist is None or not deme.alive:
                 continue
 
             elites = []
             for other_deme_id, other_deme in self.demes.items():
-                if not other_deme_id == deme_id and other_deme.elite is not None:
+                if other_deme.alive and not other_deme_id == deme_id and other_deme.elite is not None:
                     elites.append(other_deme.elite)
 
             can_sprout = True
