@@ -3,14 +3,14 @@ from typing import Tuple, Optional, List
 from ...experiments.base_experiment import BaseExperiment
 from ...genotype.base_individual import BaseIndividual
 from collections import OrderedDict
-import dask
+from dask.distributed import get_client
 from uuid import uuid1, UUID
 from copy import deepcopy
 from numpy.random import SeedSequence
 from ...visualization import utils, plotting
 from .config import LevelConfig
-import sys
-import signal
+import numpy as np
+from ...visualization.utils import save_experiment_description
 
 
 class HMS:
@@ -22,7 +22,7 @@ class HMS:
                  metaepoch_length: int,
                  gsc: Tuple[str, int],
                  n_jobs: int,
-                 rng,
+                 seed,
                  noise=None):
         assert levels == len(config_list), 'dims don\'t match'
 
@@ -35,18 +35,12 @@ class HMS:
         self.metaepoch = 1
         self.metaepoch_length = metaepoch_length
         self.n_jobs = n_jobs
-        self.rng = rng
-        self.seed_seq = SeedSequence(int(10000 * rng.random() + 1000))
+        self.rng = np.random.default_rng(seed)
+        self.seed_seq = SeedSequence(int(10000 * self.rng.random() + 1000))
         self.noise = noise
         self.elite_score_history = []
 
-        def handler(signum, _):
-            if __name__ == '__main__':
-                print('Stopping experiment early. Saving scores...')
-                self.__log_summary_metrics()
-                sys.exit()
-
-        signal.signal(signal.SIGINT, handler)
+        save_experiment_description(self, type(experiment).__name__, seed)
 
     def run(self):
 
@@ -64,13 +58,13 @@ class HMS:
 
             self.__evaluate_hms_elite()
 
-            self.__log_epoch_metrics()
+            # self.__log_epoch_metrics()
 
             self.__run_step()
 
             self.epoch += 1
 
-        self.__log_summary_metrics()
+        return self.elite_score_history
 
     def __initialize_root_deme(self):
 
@@ -79,18 +73,21 @@ class HMS:
 
     def __evaluate_individuals(self):
 
-        jobs_to_evaluate = []
+        jobs_list = [[] for _ in range(4)]
 
         for deme_id, deme in self.demes.items():
             jobs = deme.get_jobs()
             seeds = self.seed_seq.spawn(len(jobs))
 
             for (ind_id, individual), seed in zip(jobs, seeds):
-                jobs_to_evaluate.append((deme_id, ind_id, individual, seed))
+                jobs_list[0].append(deme_id)
+                jobs_list[1].append(ind_id)
+                jobs_list[2].append(individual)
+                jobs_list[3].append(seed)
 
-        eval_delayed = dask.delayed(self.experiment.evaluate_individual)
-        results = dask.persist(*[eval_delayed(*job) for job in jobs_to_evaluate])
-        results = [unit.compute() for unit in results]
+        client = get_client()
+        futures = client.map(self.experiment.evaluate_individual, *jobs_list)
+        results = client.gather(futures)
 
         for deme_id, ind_id, fitness in results:
             self.demes[deme_id].set_fitness(ind_id, fitness)
@@ -168,10 +165,10 @@ class HMS:
                 scores = list(map(lambda ind: ind.fitness, deme.population.values()))
                 plotting.plot_histogram_with_elite(scores, deme.elite.fitness, self.epoch, deme_id)
 
-    def __log_summary_metrics(self):
+    def log_summary_metrics(self, elite_score_history):
 
-        if len(self.elite_score_history) > 0:
-            plotting.plot_median_with_intervals(self.elite_score_history, self.rng)
+        if len(elite_score_history) > 0:
+            plotting.plot_median_with_intervals(elite_score_history, self.rng)
 
     def __evaluate_hms_elite(self):
 
@@ -182,16 +179,18 @@ class HMS:
                 if hms_elite is None or hms_elite.fitness < deme.elite.fitness:
                     hms_elite = deme.elite
 
-        jobs_to_evaluate = []
+        jobs_list = [[] for _ in range(4)]
         seeds = self.seed_seq.spawn(5)
 
         for seed in seeds:
-            jobs_to_evaluate.append((None, None, hms_elite, seed))
+            jobs_list[0].append(None)
+            jobs_list[1].append(None)
+            jobs_list[2].append(hms_elite)
+            jobs_list[3].append(seed)
 
-        eval_delayed = dask.delayed(self.experiment.evaluate_individual)
-        results = dask.persist(*[eval_delayed(*job) for job in jobs_to_evaluate])
-        results = [unit.compute() for unit in results]
-
+        client = get_client()
+        futures = client.map(self.experiment.evaluate_individual, *jobs_list)
+        results = client.gather(futures)
         results = list(map(lambda x: x[2], results))
         self.elite_score_history.append(results)
 

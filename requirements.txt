@@ -3,4 +3,6 @@ gym~=0.18.0
 atari-py~=0.2.6
 matplotlib~=3.3.4
 dask~=2021.3.0
+dask_jobqueue
+distributed
 scipy~=1.6.0
