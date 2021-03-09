@@ -8,6 +8,7 @@ from ..visualization.utils import save_experiment_description
 from . import run_arg_parser
 from typing import Tuple
 from numpy.random import Generator, SeedSequence
+from dask.distributed import Client
 import numpy as np
 
 LENGTH = 58
@@ -31,6 +32,8 @@ def run_experiment(seed, n_jobs, epochs):
 
     rng = np.random.default_rng(seed)
 
+    client = Client(n_workers=n_jobs)
+
     experiment = ExperimentCartPole()
 
     config_list = [LevelConfig(0.8, 0.5, 150, 30, None, None)]
@@ -40,6 +43,8 @@ def run_experiment(seed, n_jobs, epochs):
     save_experiment_description(hms, type(experiment).__name__, seed)
 
     hms.run()
+
+    input("Press any key to exit...")
 
 
 if __name__ == '__main__':
