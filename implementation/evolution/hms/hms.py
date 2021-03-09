@@ -3,7 +3,7 @@ from typing import Tuple, Optional, List
 from ...experiments.base_experiment import BaseExperiment
 from ...genotype.base_individual import BaseIndividual
 from collections import OrderedDict
-from joblib import Parallel, delayed
+import dask
 from uuid import uuid1, UUID
 from copy import deepcopy
 from numpy.random import SeedSequence
@@ -36,15 +36,15 @@ class HMS:
         self.metaepoch_length = metaepoch_length
         self.n_jobs = n_jobs
         self.rng = rng
-        self.executor = Parallel(n_jobs=self.n_jobs, backend='loky')
         self.seed_seq = SeedSequence(int(10000 * rng.random() + 1000))
         self.noise = noise
         self.elite_score_history = []
 
         def handler(signum, _):
-            print('Stopping experiment early. Saving scores...')
-            self.__log_summary_metrics()
-            sys.exit()
+            if __name__ == '__main__':
+                print('Stopping experiment early. Saving scores...')
+                self.__log_summary_metrics()
+                sys.exit()
 
         signal.signal(signal.SIGINT, handler)
 
@@ -88,7 +88,9 @@ class HMS:
             for (ind_id, individual), seed in zip(jobs, seeds):
                 jobs_to_evaluate.append((deme_id, ind_id, individual, seed))
 
-        results = self.executor(delayed(self.experiment.evaluate_individual)(*job) for job in jobs_to_evaluate)
+        eval_delayed = dask.delayed(self.experiment.evaluate_individual)
+        results = dask.persist(*[eval_delayed(*job) for job in jobs_to_evaluate])
+        results = [unit.compute() for unit in results]
 
         for deme_id, ind_id, fitness in results:
             self.demes[deme_id].set_fitness(ind_id, fitness)
@@ -186,7 +188,10 @@ class HMS:
         for seed in seeds:
             jobs_to_evaluate.append((None, None, hms_elite, seed))
 
-        results = self.executor(delayed(self.experiment.evaluate_individual)(*job) for job in jobs_to_evaluate)
+        eval_delayed = dask.delayed(self.experiment.evaluate_individual)
+        results = dask.persist(*[eval_delayed(*job) for job in jobs_to_evaluate])
+        results = [unit.compute() for unit in results]
+
         results = list(map(lambda x: x[2], results))
         self.elite_score_history.append(results)
 
