@@ -1,24 +1,10 @@
 import matplotlib.pyplot as plt
-from typing import List
 import numpy as np
-from uuid import UUID
 from scipy.stats import rv_histogram
 from numpy.random import Generator
-from . import DIR
 
 
-def plot_histogram_with_elite(scores: List[np.float], elite_score: np.float, epoch: int, deme_id: UUID):
-
-    fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.hist(scores, bins=50)
-    ax.set_title(f'elite score: {elite_score}')
-    fig.savefig(f'{DIR}/plot_{epoch}_deme_{deme_id}.png')
-    plt.close(fig)
-
-    np.save(f'{DIR}/scores_{epoch}_deme_{deme_id}.npy', scores)
-
-
-def plot_median_with_intervals(elite_score_history, rng: Generator):
+def plot_median_with_intervals(elite_score_history, rng: Generator, out_dir):
 
     def compute_median_interval(data):
         med = np.median(data)
@@ -45,9 +31,9 @@ def plot_median_with_intervals(elite_score_history, rng: Generator):
     ax.plot(epochs, meds)
     ax.fill_between(epochs, lows, highs, alpha=0.3)
 
-    fig.savefig(f'{DIR}/plot_median_intervals.png')
+    fig.savefig(f'{out_dir}/plot_median_intervals.png')
     plt.close(fig)
 
-    np.save(f'{DIR}/array_med.npy', meds)
-    np.save(f'{DIR}/array_high.npy', highs)
-    np.save(f'{DIR}/array_low.npy', lows)
+    np.save(f'{out_dir}/array_med.npy', meds)
+    np.save(f'{out_dir}/array_high.npy', highs)
+    np.save(f'{out_dir}/array_low.npy', lows)

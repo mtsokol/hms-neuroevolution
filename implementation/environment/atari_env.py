@@ -15,4 +15,4 @@ class AtariEnv(BaseEnv):
         obs = tf.gather(tf.constant(grayscale_palette), tf.cast(obs, tf.int32))
         obs = tf.reduce_max(obs, axis=2)
         resized = tf.image.resize(obs, (84, 84))
-        return resized
+        return resized.numpy()

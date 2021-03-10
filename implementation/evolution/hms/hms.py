@@ -22,8 +22,8 @@ class HMS:
                  metaepoch_length: int,
                  gsc: Tuple[str, int],
                  n_jobs: int,
-                 seed,
-                 noise=None):
+                 seed: int,
+                 out_dir: str):
         assert levels == len(config_list), 'dims don\'t match'
 
         self.experiment = experiment
@@ -37,10 +37,10 @@ class HMS:
         self.n_jobs = n_jobs
         self.rng = np.random.default_rng(seed)
         self.seed_seq = SeedSequence(int(10000 * self.rng.random() + 1000))
-        self.noise = noise
+        self.out_dir = out_dir
         self.elite_score_history = []
 
-        save_experiment_description(self, type(experiment).__name__, seed)
+        save_experiment_description(self, type(experiment).__name__, seed, out_dir)
 
     def run(self):
 
@@ -58,7 +58,7 @@ class HMS:
 
             self.__evaluate_hms_elite()
 
-            # self.__log_epoch_metrics()
+            self.__log_epoch_metrics()
 
             self.__run_step()
 
@@ -73,20 +73,17 @@ class HMS:
 
     def __evaluate_individuals(self):
 
-        jobs_list = [[] for _ in range(4)]
+        jobs_list = []
 
         for deme_id, deme in self.demes.items():
             jobs = deme.get_jobs()
             seeds = self.seed_seq.spawn(len(jobs))
 
             for (ind_id, individual), seed in zip(jobs, seeds):
-                jobs_list[0].append(deme_id)
-                jobs_list[1].append(ind_id)
-                jobs_list[2].append(individual)
-                jobs_list[3].append(seed)
+                jobs_list.append((deme_id, ind_id, individual, seed))
 
         client = get_client()
-        futures = client.map(self.experiment.evaluate_individual, *jobs_list)
+        futures = client.map(self.experiment.evaluate_individual, *list(zip(*jobs_list)))
         results = client.gather(futures)
 
         for deme_id, ind_id, fitness in results:
@@ -105,7 +102,7 @@ class HMS:
         config = self.config_list[level]
 
         if initial_individuals is None:
-            pop = [self.experiment.create_individual(config, self.rng, self.noise) for _ in range(config.pop_size)]
+            pop = [self.experiment.create_individual(config, self.rng) for _ in range(config.pop_size)]
         else:
             pop = []
             for _ in range(config.pop_size):
@@ -158,17 +155,17 @@ class HMS:
         else:
             raise Exception('Invalid GSC')
 
-    def __log_epoch_metrics(self):  # TODO proper metrics
+    def __log_epoch_metrics(self):
 
         for deme_id, deme in self.demes.items():
             if deme.alive:
                 scores = list(map(lambda ind: ind.fitness, deme.population.values()))
-                plotting.plot_histogram_with_elite(scores, deme.elite.fitness, self.epoch, deme_id)
+                np.save(f'{self.out_dir}/scores_{self.epoch}_deme_{deme_id}.npy', scores)
 
     def log_summary_metrics(self, elite_score_history):
 
         if len(elite_score_history) > 0:
-            plotting.plot_median_with_intervals(elite_score_history, self.rng)
+            plotting.plot_median_with_intervals(elite_score_history, self.rng, self.out_dir)
 
     def __evaluate_hms_elite(self):
 
@@ -179,23 +176,20 @@ class HMS:
                 if hms_elite is None or hms_elite.fitness < deme.elite.fitness:
                     hms_elite = deme.elite
 
-        jobs_list = [[] for _ in range(4)]
+        jobs_list = []
         seeds = self.seed_seq.spawn(5)
 
         for seed in seeds:
-            jobs_list[0].append(None)
-            jobs_list[1].append(None)
-            jobs_list[2].append(hms_elite)
-            jobs_list[3].append(seed)
+            jobs_list.append((None, None, hms_elite, seed))
 
         client = get_client()
-        futures = client.map(self.experiment.evaluate_individual, *jobs_list)
+        futures = client.map(self.experiment.evaluate_individual, *list(zip(*jobs_list)))
         results = client.gather(futures)
         results = list(map(lambda x: x[2], results))
         self.elite_score_history.append(results)
 
         # save elite model
-        utils.save_model(hms_elite, self.epoch)
+        utils.save_model(hms_elite, self.epoch, self.out_dir)
 
     def __str__(self):
 

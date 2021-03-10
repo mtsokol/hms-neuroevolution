@@ -40,6 +40,6 @@ for i in range(256):
     rgb_palette_uint8[i, 0] = (zrgb >> 16) & 0xff
     rgb_palette_uint8[i, 1] = (zrgb >> 8) & 0xff
     rgb_palette_uint8[i, 2] = (zrgb >> 0) & 0xff
-rgb_palette = rgb_palette_uint8.astype(np.float32)  * (1.0 / 255.0)
+rgb_palette = rgb_palette_uint8.astype(np.float32) * (1.0 / 255.0)
 grayscale_palette = np.expand_dims(np.dot(rgb_palette, np.array([0.299, 0.587, 0.114], np.float32)), axis=-1)
 ntsc_palette_uint8 = np.empty((1, 1), np.uint8)
