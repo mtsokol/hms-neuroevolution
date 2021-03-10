@@ -1,26 +1,30 @@
 from ..evolution.hms.hms import HMS
 from ..evolution.hms.config import LevelConfig
-from ..visualization.utils import save_experiment_description
-from numpy.random import Generator
-import numpy as np
+from ..visualization import DIR
 from .hms_cartpole_sea import ExperimentCartPole
-from . import run_arg_parser
+from . import run_arg_parser, create_client, create_exit_handler
 
 
 def run_experiment(seed, n_jobs, epochs):
 
-    rng = np.random.default_rng(seed)
+    client = create_client(n_jobs)
 
     experiment = ExperimentCartPole()
 
     config_list = [LevelConfig(0.8, 0.5, 110, 30, None, 0.5),
                    LevelConfig(0.8, 0.2, 40, 20, ('obj_no_change', 3), None)]
 
-    hms = HMS(experiment, 2, config_list, 2, ('epochs', epochs), n_jobs=n_jobs, rng=rng)
+    hms = HMS(experiment, 2, config_list, 2, ('epochs', epochs), n_jobs=n_jobs, seed=seed, out_dir=DIR)
 
-    save_experiment_description(hms, type(experiment).__name__, seed)
+    future = client.submit(hms.run)
 
-    hms.run()
+    create_exit_handler(future)
+
+    logs = future.result()
+
+    hms.log_summary_metrics(logs)
+
+    input("Press any key to exit...")
 
 
 if __name__ == '__main__':

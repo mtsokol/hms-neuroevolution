@@ -6,7 +6,7 @@ from copy import deepcopy
 
 class GenotypeFixedLen(BaseGenotype):
 
-    def __init__(self, mut_prob: float, mut_std: float, gen_len: int, rng: Generator, noise):
+    def __init__(self, mut_prob: float, mut_std: float, gen_len: int, rng: Generator):
         self.mut_prob = mut_prob
         self.mut_std = mut_std
         self.rng = rng
@@ -24,6 +24,6 @@ class GenotypeFixedLen(BaseGenotype):
         return self.genotype_array
 
     def __deepcopy__(self, memodict={}):
-        copied_gen = GenotypeFixedLen(self.mut_prob, self.mut_std, self.gen_len, self.rng, noise=None)
+        copied_gen = GenotypeFixedLen(self.mut_prob, self.mut_std, self.gen_len, self.rng)
         copied_gen.genotype_array = deepcopy(self.genotype_array)
         return copied_gen

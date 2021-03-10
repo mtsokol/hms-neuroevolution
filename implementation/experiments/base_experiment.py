@@ -19,7 +19,7 @@ class BaseExperiment(ABC):
             raise Exception('Invalid encoding type')
 
     @abstractmethod
-    def create_individual(self, level_config: LevelConfig, rng: Generator, noise: Optional[np.ndarray]) -> BaseIndividual:
+    def create_individual(self, level_config: LevelConfig, rng: Generator) -> BaseIndividual:
         pass
 
     @abstractmethod
