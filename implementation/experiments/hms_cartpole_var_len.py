@@ -1,6 +1,6 @@
 from ..evolution.hms.hms import HMS
 from ..evolution.hms.config import LevelConfig
-from ..visualization import DIR
+from ..visualization import make_dir
 import numpy as np
 from .hms_cartpole_sea import ExperimentCartPole
 from . import run_arg_parser, create_client, create_exit_handler
@@ -14,11 +14,13 @@ def run_experiment(seed, n_jobs, epochs):
 
     config_list = [LevelConfig(0.8, 0.5, 150, 30, None, None)]
 
-    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', epochs), n_jobs=n_jobs, seed=seed, out_dir=DIR)
+    out_dir = make_dir()
+
+    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', epochs), n_jobs=n_jobs, seed=seed, out_dir=out_dir)
 
     future = client.submit(hms.run)
 
-    create_exit_handler(future)
+    create_exit_handler(future, client)
 
     logs = future.result()
 

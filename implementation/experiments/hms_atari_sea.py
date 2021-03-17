@@ -4,7 +4,7 @@ from ..environment.atari_env import AtariEnv
 from .base_experiment import BaseExperiment
 from ..genotype.base_individual import BaseIndividual
 from ..genotype.individual_conv import IndividualConv
-from ..visualization import DIR
+from ..visualization import make_dir
 from typing import Tuple
 from numpy.random import Generator, SeedSequence
 import numpy as np
@@ -37,7 +37,9 @@ def run_experiment(seed, n_jobs, epochs):
 
     config_list = [LevelConfig(0.9, 0.005, 1000, 25, None, None)]
 
-    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', epochs), n_jobs=n_jobs, seed=seed, out_dir=DIR)
+    out_dir = make_dir()
+
+    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', epochs), n_jobs=n_jobs, seed=seed, out_dir=out_dir)
 
     future = client.submit(hms.run)
 
