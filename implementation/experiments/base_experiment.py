@@ -5,7 +5,6 @@ from numpy.random import Generator, SeedSequence
 from ..evolution.hms.config import LevelConfig
 from ..genotype.genotype_fixed_len import GenotypeFixedLen
 from ..genotype.genotype_var_len import GenotypeVarLen
-from typing import Optional
 
 
 class BaseExperiment(ABC):

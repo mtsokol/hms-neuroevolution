@@ -1,7 +1,7 @@
 from ..evolution.hms.hms import HMS
 from ..evolution.hms.config import LevelConfig
 from ..environment.gym_env import GymEnv
-from ..visualization import DIR
+from ..visualization import make_dir
 from .base_experiment import BaseExperiment
 from ..genotype.base_individual import BaseIndividual
 from ..genotype.individual_nn import IndividualNN
@@ -35,11 +35,13 @@ def run_experiment(seed, n_jobs, epochs):
 
     config_list = [LevelConfig(0.8, 0.5, 300, 30, None, None)]
 
-    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', epochs), n_jobs=n_jobs, seed=seed, out_dir=DIR)
+    out_dir = make_dir()
+
+    hms = HMS(experiment, 1, config_list, np.inf, ('epochs', epochs), n_jobs=n_jobs, seed=seed, out_dir=out_dir)
 
     future = client.submit(hms.run)
 
-    create_exit_handler(future)
+    create_exit_handler(future, client)
 
     logs = future.result()
 
