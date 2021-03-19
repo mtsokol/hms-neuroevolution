@@ -20,11 +20,13 @@ def create_client(n_jobs: int) -> Client:
     if 'PARTITION' in os.environ and 'GRANT' in os.environ:
         cluster = SLURMCluster(queue=os.environ['PARTITION'],
                                project=os.environ['GRANT'],
-                               cores=1,
-                               processes=2,
-                               memory='6GB',
-                               walltime='00:06:00')
-        cluster.scale(n_jobs)
+                               cores=8,
+                               processes=8,
+                               memory='16 GB',
+                               walltime='00:20:00',
+                               interface='ib0',  # interface for the workers
+                               scheduler_options={'interface': 'eth55'})  # interface for the scheduler
+        cluster.scale(jobs=n_jobs)
         return Client(cluster)
     else:
         cluster = LocalCluster(n_workers=n_jobs, threads_per_worker=1)

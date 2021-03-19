@@ -36,7 +36,7 @@ class HMS:
         self.metaepoch_length = metaepoch_length
         self.n_jobs = n_jobs
         self.rng = np.random.default_rng(seed)
-        self.seed_seq = SeedSequence(int(10000 * self.rng.random() + 1000))
+        self.seed_seq = SeedSequence(int(10_000_000 * self.rng.random() + 1000))
         self.out_dir = out_dir
         self.elite_score_history = []
 
