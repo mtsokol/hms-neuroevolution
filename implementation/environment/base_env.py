@@ -32,12 +32,12 @@ class BaseEnv(ABC):
 
         for i in range(no_attempts):
             env = gym.make(env_name)
-            env.seed(int(10000 * self.rng.random() + 1000))
+            env.seed(int(10_000_000 * self.rng.random() + 1000))
             obs = env.reset()
             self.envs.append(env)
             self.obses.append(obs)
 
-        tf.random.set_seed(int(10000 * self.rng.random() + 1000))
+        tf.random.set_seed(int(10_000_000 * self.rng.random() + 1000))
 
     def run_episode(
             self,

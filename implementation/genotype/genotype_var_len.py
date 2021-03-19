@@ -13,11 +13,11 @@ class GenotypeVarLen(BaseGenotype):
         self.mut_std = mut_std
         self.rng = rng
         self.gen_len = gen_len
-        self.seeds = [int(100000 * self.rng.random() + 1)]
+        self.seeds = [int(10_000_000 * self.rng.random() + 1000)]
 
     def mutate(self) -> None:
         if self.rng.random() < self.mut_prob:
-            self.seeds.append(int(100000 * self.rng.random() + 1))
+            self.seeds.append(int(10_000_000 * self.rng.random() + 1000))
 
     def crossover(self, other_genotype: 'BaseGenotype') -> None:
         raise NotImplementedError()
