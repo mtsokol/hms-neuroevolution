@@ -18,4 +18,4 @@ class BaseIndividual(ABC):
         pass
 
     def distance_to(self, other_individual: 'BaseIndividual') -> np.float:
-        return np.sum(self.genotype.get_gene_array() - other_individual.genotype.get_gene_array())
+        return np.sum((self.genotype.get_gene_array() - other_individual.genotype.get_gene_array())**2)

@@ -35,6 +35,14 @@ class Deme:
         else:
             return []
 
+    def get_elite(self):
+        return self.elite
+
+    def get_promoted_individuals(self):
+        individuals = list(self.population.values())
+        individuals.sort(key=lambda ind: ind.fitness, reverse=True)
+        return individuals[:self.level_config.promoted_num]
+
     def run_step(self):
         if self.alive:
 
@@ -44,13 +52,12 @@ class Deme:
                 self.alive = False
 
     def __run_step(self):
-        individuals = list(self.population.values())
-        individuals.sort(key=lambda ind: ind.fitness, reverse=True)
+        promoted_individuals = self.get_promoted_individuals()
 
         new_population = OrderedDict()
 
         for _ in range(self.level_config.pop_size-1):
-            ind = self.rng.choice(individuals[:self.level_config.promoted_num])
+            ind = self.rng.choice(promoted_individuals)
             ind = deepcopy(ind)
             ind.genotype.mutate()
             new_population[uuid1()] = ind

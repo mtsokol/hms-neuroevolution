@@ -97,7 +97,7 @@ class HMS:
         for deme_id, deme in self.demes.items():
             deme.run_step()
 
-    def __create_deme(self, level: int, initial_individuals: list = None) -> Deme:
+    def __create_deme(self, level: int, initial_individuals: list = None, elite=None) -> Deme:
 
         config = self.config_list[level]
 
@@ -110,6 +110,9 @@ class HMS:
                 ind = deepcopy(ind)
                 ind.genotype.mutate()
                 pop.append(ind)
+
+        if elite is not None:
+            pop.append(deepcopy(elite))
 
         return Deme(level, pop, config, self.rng)
 
@@ -135,7 +138,7 @@ class HMS:
                     can_sprout = False
 
             if can_sprout:
-                new_deme = self.__create_deme(deme.level + 1, [deme.elite])
+                new_deme = self.__create_deme(deme.level + 1, [deme.elite], elite=deme.elite)
                 new_demes.append(new_deme)
 
         for new_deme in new_demes:
