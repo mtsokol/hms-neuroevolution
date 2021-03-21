@@ -39,19 +39,23 @@ class HMS:
         self.seed_seq = SeedSequence(int(10_000_000 * self.rng.random() + 1000))
         self.out_dir = out_dir
         self.elite_score_history = []
+        self.out_file = None
 
         save_experiment_description(self, type(experiment).__name__, seed, out_dir)
 
     def run(self):
 
+        self.out_file = open(f'{self.out_dir}/scores.txt', 'a')
         self.__initialize_root_deme()
 
         while not self.gsc_satisfied():
 
-            print(f'Starting epoch {self.epoch}')
+            self.out_file.write(f'Starting epoch {self.epoch}\n')
+            self.out_file.flush()
 
             if self.epoch % self.metaepoch_length == 0:
-                print(f'Starting metaepoch in {self.epoch}')
+                self.out_file.write(f'Starting metaepoch in {self.epoch}\n')
+                self.out_file.flush()
                 self.__perform_sprouting()
 
             self.__evaluate_individuals()
@@ -63,6 +67,8 @@ class HMS:
             self.__run_step()
 
             self.epoch += 1
+
+        self.out_file.close()
 
         return self.elite_score_history
 
@@ -164,6 +170,8 @@ class HMS:
             if deme.alive:
                 scores = list(map(lambda ind: ind.fitness, deme.population.values()))
                 np.save(f'{self.out_dir}/scores_{self.epoch}_deme_{deme_id}.npy', scores)
+                self.out_file.write(f"best fitness for deme {deme_id} is {deme.elite.fitness}\n")
+                self.out_file.flush()
 
     def log_summary_metrics(self, elite_score_history):
 

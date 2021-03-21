@@ -33,7 +33,7 @@ def run_experiment(seed, n_jobs, epochs):
 
     experiment = ExperimentCartPole()
 
-    config_list = [LevelConfig(0.8, 0.5, 300, 30, None, None)]
+    config_list = [LevelConfig(0.9, 0.5, 300, 30, None, None)]
 
     out_dir = make_dir()
 

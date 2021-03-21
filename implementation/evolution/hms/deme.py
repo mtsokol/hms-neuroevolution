@@ -66,8 +66,5 @@ class Deme:
 
         del self.population
         self.population = new_population
-
-        print(f"best fitness for deme {hash(self)} is {self.elite.fitness}")
-
         self.history.append(self.elite.fitness)
         self.steps_run += 1
