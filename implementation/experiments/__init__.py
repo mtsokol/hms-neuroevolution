@@ -20,10 +20,10 @@ def create_client(n_jobs: int) -> Client:
     if 'PARTITION' in os.environ and 'GRANT' in os.environ:
         cluster = SLURMCluster(queue=os.environ['PARTITION'],
                                project=os.environ['GRANT'],
-                               cores=8,
-                               processes=8,
-                               memory='16 GB',
-                               walltime='00:20:00',
+                               cores=24,
+                               processes=24,
+                               memory='48 GB',
+                               walltime='01:00:00',
                                interface='ib0',  # interface for the workers
                                scheduler_options={'interface': 'eth55'})  # interface for the scheduler
         cluster.scale(jobs=n_jobs)
@@ -38,7 +38,7 @@ def create_exit_handler(future, client):
     def handler(signum, _):
         if __name__ == '__main__':
             client.cancel([future])
-            print('Stopping experiment early. Saving scores...')
+            print('Stopping experiment early...')
             sys.exit()
 
     signal.signal(signal.SIGINT, handler)

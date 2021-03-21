@@ -11,8 +11,8 @@ def run_experiment(seed, n_jobs, epochs):
 
     experiment = ExperimentCartPole()
 
-    config_list = [LevelConfig(0.9, 1.0, 100, 40, None, 0.5),
-                   LevelConfig(0.9, 0.5, 200, 35, ('obj_no_change', 4), None)]
+    config_list = [LevelConfig(0.9, 0.2, 220, 45, None, 0.5),
+                   LevelConfig(0.9, 0.05, 80, 25, ('obj_no_change', 4), None)]
 
     out_dir = make_dir()
 
