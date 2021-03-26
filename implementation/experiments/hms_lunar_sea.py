@@ -13,7 +13,7 @@ import numpy as np
 LENGTH = 18180
 
 
-class ExperimentCartPole(BaseExperiment):
+class ExperimentLunarLander(BaseExperiment):
 
     def __init__(self, encoding: str = 'fixed'):
         super().__init__(encoding)
@@ -31,9 +31,9 @@ def run_experiment(seed, n_jobs, epochs):
 
     client = create_client(n_jobs)
 
-    experiment = ExperimentCartPole()
+    experiment = ExperimentLunarLander()
 
-    config_list = [LevelConfig(0.9, 0.5, 300, 30, None, None)]
+    config_list = [LevelConfig(0.9, 0.2, 450, 35, None, None)]
 
     out_dir = make_dir()
 

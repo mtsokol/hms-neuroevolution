@@ -2,14 +2,14 @@ from ..evolution.hms.hms import HMS
 from ..evolution.hms.config import LevelConfig
 from ..visualization import make_dir
 from . import run_arg_parser, create_client, create_exit_handler
-from .hms_lunar_sea import ExperimentCartPole
+from .hms_lunar_sea import ExperimentLunarLander
 
 
 def run_experiment(seed, n_jobs, epochs):
 
     client = create_client(n_jobs)
 
-    experiment = ExperimentCartPole()
+    experiment = ExperimentLunarLander()
 
     config_list = [LevelConfig(0.9, 0.2, 220, 45, None, 0.5),
                    LevelConfig(0.9, 0.05, 80, 25, ('obj_no_change', 4), None)]

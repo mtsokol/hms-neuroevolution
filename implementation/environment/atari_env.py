@@ -7,7 +7,7 @@ from . import grayscale_palette
 class AtariEnv(BaseEnv):
 
     def __init__(self, env_name: str, seed: SeedSequence, no_attempts: int = 3,
-                 max_steps_per_episode: int = 1000):
+                 max_steps_per_episode: int = 2000):
 
         super().__init__(env_name, seed, 'argmax', no_attempts, max_steps_per_episode)
 
