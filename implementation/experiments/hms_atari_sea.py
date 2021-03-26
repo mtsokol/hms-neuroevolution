@@ -35,7 +35,7 @@ def run_experiment(seed, n_jobs, epochs):
 
     experiment = ExperimentAtari()
 
-    config_list = [LevelConfig(0.9, 0.005, 1000, 25, None, None)]
+    config_list = [LevelConfig(1.0, 0.002, 1000, 20, None, None)]
 
     out_dir = make_dir()
 
