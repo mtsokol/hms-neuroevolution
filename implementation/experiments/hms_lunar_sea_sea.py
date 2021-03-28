@@ -16,13 +16,11 @@ def run_experiment(seed, n_jobs, epochs):
 
     out_dir = make_dir()
 
-    hms = HMS(experiment, 2, config_list, 3, ('epochs', epochs), n_jobs=n_jobs, seed=seed, out_dir=out_dir)
+    hms = HMS(experiment, 2, config_list, 3, ('epochs', epochs), n_jobs=n_jobs, seed=seed, out_dir=out_dir, client=client)
 
-    future = client.submit(hms.run)
+    create_exit_handler(client)
 
-    create_exit_handler(future, client)
-
-    logs = future.result()
+    logs = hms.run()
 
     hms.log_summary_metrics(logs)
 

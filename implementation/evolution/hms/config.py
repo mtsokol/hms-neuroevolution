@@ -1,12 +1,11 @@
-import numpy as np
 from typing import Optional, Tuple
 
 
 class LevelConfig:
 
-    def __init__(self, mut_prob: np.float, mut_std: np.float,
+    def __init__(self, mut_prob: float, mut_std: float,
                  pop_size: int, promoted_num: int,
-                 lsc: Optional[Tuple[str, float]], spr_cond: Optional[np.float]):
+                 lsc: Optional[Tuple[str, float]], spr_cond: Optional[float]):
         self.mut_prob = mut_prob
         self.mut_std = mut_std
         self.pop_size = pop_size
