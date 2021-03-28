@@ -3,7 +3,6 @@ from typing import Tuple, Optional, List
 from ...experiments.base_experiment import BaseExperiment
 from ...genotype.base_individual import BaseIndividual
 from collections import OrderedDict
-from dask.distributed import get_client
 from uuid import uuid1, UUID
 from copy import deepcopy
 from numpy.random import SeedSequence
@@ -23,7 +22,8 @@ class HMS:
                  gsc: Tuple[str, int],
                  n_jobs: int,
                  seed: int,
-                 out_dir: str):
+                 out_dir: str,
+                 client):
         assert levels == len(config_list), 'dims don\'t match'
 
         self.experiment = experiment
@@ -40,6 +40,7 @@ class HMS:
         self.out_dir = out_dir
         self.elite_score_history = []
         self.out_file = None
+        self.client = client
 
         save_experiment_description(self, type(experiment).__name__, seed, out_dir)
 
@@ -88,9 +89,8 @@ class HMS:
             for (ind_id, individual), seed in zip(jobs, seeds):
                 jobs_list.append((deme_id, ind_id, individual, seed))
 
-        client = get_client()
-        futures = client.map(self.experiment.evaluate_individual, *list(zip(*jobs_list)))
-        results = client.gather(futures)
+        futures = self.client.map(self.experiment.evaluate_individual, *list(zip(*jobs_list)))
+        results = self.client.gather(futures)
 
         for deme_id, ind_id, fitness in results:
             self.demes[deme_id].set_fitness(ind_id, fitness)
@@ -193,9 +193,8 @@ class HMS:
         for seed in seeds:
             jobs_list.append((None, None, hms_elite, seed))
 
-        client = get_client()
-        futures = client.map(self.experiment.evaluate_individual, *list(zip(*jobs_list)))
-        results = client.gather(futures)
+        futures = self.client.map(self.experiment.evaluate_individual, *list(zip(*jobs_list)))
+        results = self.client.gather(futures)
         results = list(map(lambda x: x[2], results))
         self.elite_score_history.append(results)
 

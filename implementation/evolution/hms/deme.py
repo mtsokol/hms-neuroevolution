@@ -3,7 +3,6 @@ from ...genotype.base_individual import BaseIndividual
 from .config import LevelConfig
 from collections import OrderedDict
 from uuid import uuid1, UUID
-import numpy as np
 from copy import deepcopy
 
 
@@ -22,7 +21,7 @@ class Deme:
         for ind in initial_population:
             self.population[uuid1()] = ind
 
-    def set_fitness(self, ind_id: UUID, fitness: np.float):
+    def set_fitness(self, ind_id: UUID, fitness: float):
         self.population[ind_id].fitness = fitness
 
     def update_elite(self):

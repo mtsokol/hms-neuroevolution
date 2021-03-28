@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from ..genotype.base_individual import BaseIndividual
-import numpy as np
 from numpy.random import Generator, SeedSequence
 from ..evolution.hms.config import LevelConfig
 from ..genotype.genotype_fixed_len import GenotypeFixedLen
@@ -22,5 +21,5 @@ class BaseExperiment(ABC):
         pass
 
     @abstractmethod
-    def evaluate_individual(self, individual: BaseIndividual, individual_id, deme_id, seed: SeedSequence) -> np.float:
+    def evaluate_individual(self, individual: BaseIndividual, individual_id, deme_id, seed: SeedSequence) -> float:
         pass

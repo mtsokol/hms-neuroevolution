@@ -18,18 +18,18 @@ def run_arg_parser() -> Tuple[int, int, int]:
 def create_client(n_jobs: int) -> Client:
 
     if n_jobs == -1:
-        initialize()
-        return Client()
+        initialize(interface='ib0')
+        return Client(timeout='120s')
     else:
         cluster = LocalCluster(n_workers=n_jobs, threads_per_worker=1)
         return Client(cluster)
 
 
-def create_exit_handler(future, client):
+def create_exit_handler(client):
 
     def handler(signum, _):
         if __name__ == '__main__':
-            client.cancel([future])
+            client.close()
             print('Stopping experiment early...')
             sys.exit()
 

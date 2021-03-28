@@ -6,7 +6,7 @@ import tensorflow as tf
 
 class BaseIndividual(ABC):
 
-    fitness: np.float
+    fitness: float
 
     @abstractmethod
     def __init__(self, genotype: BaseGenotype, model_shape):
@@ -17,5 +17,5 @@ class BaseIndividual(ABC):
     def to_phenotype(self) -> tf.keras.Model:
         pass
 
-    def distance_to(self, other_individual: 'BaseIndividual') -> np.float:
+    def distance_to(self, other_individual: 'BaseIndividual') -> float:
         return np.sum((self.genotype.get_gene_array() - other_individual.genotype.get_gene_array())**2)
