@@ -20,7 +20,7 @@ def create_client(n_jobs: int) -> Client:
 
     if n_jobs == -1:
         initialize(interface='ib0')
-        client = Client(timeout='120s')
+        client = Client(timeout='180s')
 
         host = client.run_on_scheduler(socket.gethostname)
         port = client.scheduler_info()['services']['dashboard']
