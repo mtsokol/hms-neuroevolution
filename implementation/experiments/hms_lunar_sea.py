@@ -41,7 +41,7 @@ def run_experiment(seed, n_jobs, epochs):
 
     create_exit_handler(client)
 
-    logs = hms.run
+    logs = hms.run()
 
     hms.log_summary_metrics(logs)
 
