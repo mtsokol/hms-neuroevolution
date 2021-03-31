@@ -1,6 +1,6 @@
 # HMS Neuroevolution
 
-This repository is an implementation of Master Thesis project: "Application of the hierarchic memetic strategy HMS in neuroevolution"
+This repository is an implementation of master's thesis project: "Application of the hierarchic memetic strategy HMS in neuroevolution"
 
 Here we examine the HMS framework in the setting of neuroevolution. 
 Following the findings from [Uber AI Labs on neuroevolution](https://arxiv.org/abs/1712.06567) 
@@ -90,3 +90,5 @@ Environment base class (`implementation/environment/base_env.py`) imposes `Gym` 
 
 Project provides a few notebooks for episode recording for elites (fun to watch!) and 
 plotting (in `/notebooks` directory - detailed instructions inside a notebook). 
+
+Please see live example evaluation here: https://youtu.be/t3P0w0I7Xw8
