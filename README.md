@@ -2,7 +2,7 @@
 
 This repository is an implementation of master's thesis project: "Application of the hierarchic memetic strategy HMS in neuroevolution"
 
-Here we examine the HMS framework in the setting of neuroevolution. 
+Here we examine the [HMS framework](https://www.sciencedirect.com/science/article/abs/pii/S1877750318307233) in the setting of neuroevolution. 
 Following the findings from [Uber AI Labs on neuroevolution](https://arxiv.org/abs/1712.06567) 
 we extend the notion of genetic algorithm to a hierarchic structure of such algorithms.
 Agents were evaluated on selected Atari games and simple control systems available via Gym library.
